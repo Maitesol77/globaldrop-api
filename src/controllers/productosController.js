@@ -1,17 +1,60 @@
-const Producto = require('../models/productosModel');
+// controllers/productosController.js
+const { getAllProductos, getProductoByPartNumber } = require('../models/productosModel');
+const sendResponse = require('../helpers/respuestaestandard').sendResponse;
 
-exports.getProductos = (req, res) => {
-  Producto.getAllProductos((err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json(results);
+const obtenerTodosLosProductos = (req, res) => {
+  getAllProductos((err, results) => {
+    if (err) {
+      return sendResponse(res, {
+        status: 'error',
+        code: 500,
+        message: 'Error al obtener los productos',
+        data: []
+      });
+    }
+
+    sendResponse(res, {
+      code: 200,
+      message: 'Productos obtenidos correctamente',
+      data: results,
+      metadata: {
+        total: results.length
+      }
+    });
   });
 };
 
-exports.getProducto = (req, res) => {
-  const { part_number } = req.params;
-  Producto.getProductoByPartNumber(part_number, (err, results) => {
-    if (err) return res.status(500).send(err);
-    if (results.length === 0) return res.status(404).json({ msg: 'Producto no encontrado' });
-    res.json(results[0]);
+const obtenerProductoPorPartNumber = (req, res) => {
+  const partNumber = req.params.partNumber;
+
+  getProductoByPartNumber(partNumber, (err, results) => {
+    if (err) {
+      return sendResponse(res, {
+        status: 'error',
+        code: 500,
+        message: 'Error al buscar el producto',
+        data: []
+      });
+    }
+
+    if (results.length === 0) {
+      return sendResponse(res, {
+        status: 'error',
+        code: 404,
+        message: 'Producto no encontrado',
+        data: []
+      });
+    }
+
+    sendResponse(res, {
+      code: 200,
+      message: 'Producto encontrado',
+      data: results
+    });
   });
+};
+
+module.exports = {
+  obtenerTodosLosProductos,
+  obtenerProductoPorPartNumber
 };

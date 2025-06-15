@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const productosController = require('../controllers/productosController');
+const {
+  obtenerTodosLosProductos,
+  obtenerProductoPorPartNumber
+} = require('../controllers/productosController');
 
-router.get('/productos', productosController.getProductos);
-router.get('/productos/:part_number', productosController.getProducto);
+router.get('/', obtenerTodosLosProductos);
+router.get('/:partNumber', obtenerProductoPorPartNumber);
 
 module.exports = router;
